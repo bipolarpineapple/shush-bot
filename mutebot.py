@@ -46,7 +46,7 @@ async def helpmenu(ctx):
 @client.command() #manually mute members
 @commands.has_permissions(kick_members=True)
 async def mute(ctx, member : discord.Member, *,reason=None):
-    role = ctx.guild.get_role(860927818149658664)
+    role = ctx.guild.get_role()
     await ctx.send(f"Muted because of {reason}")
     await member.add_roles(role, reason=reason)
     
@@ -57,7 +57,7 @@ async def unmute(ctx, member : discord.Member):
     if not member:
         await ctx.send('Remember to @ the member')
     else:
-        role = ctx.guild.get_role(860927818149658664)
+        role = ctx.guild.get_role()
         await ctx.send("Unmuted")
         await member.remove_roles(role)
 
@@ -74,7 +74,7 @@ async def tempmute(ctx, member : discord.Member=None,time=0,unit=None,*,reason=N
         await ctx.send("Don't forget about the unit")
         return
     else:
-        role = ctx.guild.get_role(860927818149658664) #remember to change in different server for the role
+        role = ctx.guild.get_role() #remember to change in different server for the role
         await member.add_roles(role, reason=reason) #add the "role" to the user and the reason too
         await ctx.send(f"Muted because of {reason} for {time}{unit}") #message
         if unit == 's':
