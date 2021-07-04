@@ -1,6 +1,7 @@
 import discord #for discord bot
 import random #for random function
 from discord.ext import commands
+import asyncio
 
 client = commands.Bot(command_prefix="+") #lauch discord client
 
@@ -25,7 +26,24 @@ async def on_message(message):
 
     await client.process_commands(message)
 
-@client.command() #mute members
+
+@client.command() #guide
+async def helpmenu(ctx):
+    helpmsg = discord.Embed(title=f"Tips for using {client.user}",
+                         description="> **'+mute <@member> <reason>'**\n"
+                                     "mute member with a reason(reason is optional)\n\n"
+
+                                     "> **'+unmute <@member>'**\n"
+                                     "unmute member\n\n"
+
+                                     "> **'+tempmute <@member> <time> <unit(s,m,h,d)> <reason>'**\n"
+                                     "time mute member [s=seconds, m=minutes, h=hours, d=days](reason is optional)",
+                              colour=discord.Colour.magenta())
+
+    await ctx.send(embed=helpmsg)
+
+
+@client.command() #manually mute members
 @commands.has_permissions(kick_members=True)
 async def mute(ctx, member : discord.Member, *,reason=None):
     role = ctx.guild.get_role(860927818149658664)
@@ -33,13 +51,47 @@ async def mute(ctx, member : discord.Member, *,reason=None):
     await member.add_roles(role, reason=reason)
     
     
-@client.command()
+@client.command() #manually unmute member
 @commands.has_permissions(kick_members=True)
 async def unmute(ctx, member : discord.Member):
-    role = ctx.guild.get_role(860927818149658664)
-    await ctx.send("has been unmuted")
-    await member.remove_roles(role)
-    
+    if not member:
+        await ctx.send('Remember to @ the member')
+    else:
+        role = ctx.guild.get_role(860927818149658664)
+        await ctx.send("Unmuted")
+        await member.remove_roles(role)
 
-TOKEN = 'ODYwODI1NzkxMzg2MzUzNjc1.YOA4fg.9mdIkAD1E21Aw_LtIunYtwAff94' #replace if the TOKEN is regenerated
+@client.command() #timed mute
+@commands.has_permissions(kick_members=True)
+async def tempmute(ctx, member : discord.Member=None,time=0,unit=None,*,reason=None): #user will need to enter the "$" with member's name and their reason
+    if not member:
+        await ctx.send("Don't forget to @ the member")
+        return
+    elif not time:
+        await ctx.send("Don't forget about the time")
+        return
+    elif not unit:
+        await ctx.send("Don't forget about the unit")
+        return
+    else:
+        role = ctx.guild.get_role(860927818149658664) #remember to change in different server for the role
+        await member.add_roles(role, reason=reason) #add the "role" to the user and the reason too
+        await ctx.send(f"Muted because of {reason} for {time}{unit}") #message
+        if unit == 's':
+            duration = 1 * time
+            await asyncio.sleep(duration)
+        elif unit == 'm':
+            duration = 60 * time
+            await asyncio.sleep(duration)
+        elif unit == 'h':
+            duration = 60 * 60 * time
+            await asyncio.sleep(duration)
+        elif unit == 'd':
+            duration = 24 * 60 * 60 * time 
+            await asyncio.sleep(duration)
+        await member.remove_roles(role)
+        await ctx.send("Times up! Unmuted")
+
+
+TOKEN = ' ' #replace if the TOKEN is regenerated
 client.run(TOKEN)
